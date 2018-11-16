@@ -1,7 +1,7 @@
 package kcnops.lubbinton.view;
 
 import kcnops.lubbinton.controller.MainController;
-import kcnops.lubbinton.model.Setup;
+import kcnops.lubbinton.model.Round;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -41,7 +41,11 @@ public class LubbintonScreen extends JFrame {
 		mainController.start(selectedPlayers);
 	}
 
-	public void thisRound(@Nonnull final Setup setup) {
-		roundPanel.thisRound(setup);
+	public void thisRound(@Nonnull final Round round) {
+		roundPanel.thisRound(round);
+	}
+
+	public void nextRound(@Nonnull final Round round) {
+		roundPanel.nextRound(round);
 	}
 }

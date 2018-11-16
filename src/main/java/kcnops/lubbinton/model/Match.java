@@ -14,6 +14,16 @@ public class Match {
 		this.sideTwo = sideTwo;
 	}
 
+	@Nonnull
+	public Side getSideOne() {
+		return sideOne;
+	}
+
+	@Nonnull
+	public Side getSideTwo() {
+		return sideTwo;
+	}
+
 	public boolean doesPlayWith(@Nonnull final Player playerOne, @Nonnull final Player playerTwo) {
 		return sideOne.doesPlayWith(playerOne, playerTwo) || sideTwo.doesPlayWith(playerOne, playerTwo);
 	}
