@@ -1,6 +1,5 @@
 package kcnops.lubbinton.view;
 
-import kcnops.lubbinton.model.Match;
 import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;
 
@@ -11,9 +10,13 @@ import java.util.stream.Collectors;
 
 public class RoundPanel extends JPanel {
 
+	private final boolean withScore;
+
 	private JPanel bodyPanel;
 
-	protected RoundPanel(@Nonnull final String title) {
+	protected RoundPanel(@Nonnull final String title,  final boolean withScore) {
+		this.withScore = withScore;
+
 		this.setLayout(new BorderLayout());
 
 		final JTextField header = new JTextField(title);
@@ -21,6 +24,7 @@ public class RoundPanel extends JPanel {
 		this.add(header, BorderLayout.NORTH);
 
 		bodyPanel = new JPanel();
+		bodyPanel.setLayout(new BorderLayout());
 		this.add(bodyPanel, BorderLayout.CENTER);
 
 		bodyPanel.add(new JTextField("Loading..."));
@@ -29,42 +33,15 @@ public class RoundPanel extends JPanel {
 	protected void setGames(@Nonnull final Round round) {
 		bodyPanel.removeAll();
 
-		final JPanel thisMatchesPanel = new JPanel();
-		thisMatchesPanel.setLayout(new BoxLayout(thisMatchesPanel, BoxLayout.PAGE_AXIS));
-		bodyPanel.add(thisMatchesPanel, BorderLayout.CENTER);
-		round.getMatches().forEach(match -> this.add(getMatchPanel(match)));
+		final JPanel matchesPanel = new JPanel();
+		matchesPanel.setLayout(new BoxLayout(matchesPanel, BoxLayout.PAGE_AXIS));
+		bodyPanel.add(matchesPanel, BorderLayout.CENTER);
+		round.getMatches().forEach(match -> matchesPanel.add(new MatchPanel(match, withScore)));
 
 		final JPanel thisRestPanel = new JPanel();
 		bodyPanel.add(thisRestPanel, BorderLayout.SOUTH);
 		final JPanel restPanel = getRestPanel(round);
 		thisRestPanel.add(restPanel);
-	}
-
-	private JPanel getMatchPanel(@Nonnull final Match match) {
-		final JPanel matchPanel = new JPanel();
-		matchPanel.setLayout(new BorderLayout());
-
-
-		final JPanel gamePanel = new JPanel();
-		gamePanel.setLayout(new BorderLayout());
-		matchPanel.add(gamePanel, BorderLayout.WEST);
-
-		final JTextPane homeTeamPanel = new JTextPane();
-		gamePanel.add(homeTeamPanel, BorderLayout.WEST);
-		homeTeamPanel.setText(match.getSideOne().toString());
-		homeTeamPanel.setEditable(false);
-
-		final JTextPane vsPanel = new JTextPane();
-		gamePanel.add(vsPanel, BorderLayout.CENTER);
-		vsPanel.setText("vs.");
-		vsPanel.setEditable(false);
-
-		final JTextPane outTeamPanel = new JTextPane();
-		gamePanel.add(outTeamPanel, BorderLayout.EAST);
-		outTeamPanel.setText(match.getSideTwo().toString());
-		outTeamPanel.setEditable(false);
-
-		return matchPanel;
 	}
 
 	private JPanel getRestPanel(@Nonnull final Round round) {

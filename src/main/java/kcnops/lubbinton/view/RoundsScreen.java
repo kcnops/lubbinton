@@ -10,7 +10,6 @@ public class RoundsScreen extends JPanel {
 
 	private RoundPanel thisRoundPanel;
 	private RoundPanel nextRoundPanel;
-	private JPanel scorePanel;
 
 	public RoundsScreen() {
 		this.setLayout(new BorderLayout());
@@ -29,16 +28,14 @@ public class RoundsScreen extends JPanel {
 
 
 		final JPanel roundsPanel = new JPanel();
+		roundsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		this.add(roundsPanel, BorderLayout.CENTER);
 
-		thisRoundPanel = new RoundPanel("This round");
-		roundsPanel.add(thisRoundPanel, BorderLayout.WEST);
+		thisRoundPanel = new RoundPanel("This round", true);
+		roundsPanel.add(thisRoundPanel);
 
-		this.scorePanel = getScorePanel();
-		roundsPanel.add(scorePanel, BorderLayout.CENTER);
-
-		nextRoundPanel = new RoundPanel("Next round");
-		roundsPanel.add(nextRoundPanel, BorderLayout.EAST);
+		nextRoundPanel = new RoundPanel("Next round", false);
+		roundsPanel.add(nextRoundPanel);
 	}
 
 	protected void thisRound(@Nonnull final Round round) {
@@ -48,26 +45,6 @@ public class RoundsScreen extends JPanel {
 
 	protected void nextRound(@Nonnull final Round round) {
 		nextRoundPanel.setGames(round);
-	}
-
-	private JPanel getScorePanel() {
-		final JPanel scorePanel = new JPanel();
-		scorePanel.setLayout(new BorderLayout());
-
-		final JTextField homeTeamScore = new JTextField();
-		homeTeamScore.setPreferredSize(new Dimension(20, 10));
-		scorePanel.add(homeTeamScore, BorderLayout.WEST);
-
-		final JTextPane dashPanel = new JTextPane();
-		scorePanel.add(dashPanel, BorderLayout.CENTER);
-		dashPanel.setText("-");
-		dashPanel.setEditable(false);
-
-		final JTextField outTeamScore = new JTextField();
-		scorePanel.add(outTeamScore, BorderLayout.EAST);
-		outTeamScore.setPreferredSize(new Dimension(20, 10));
-
-		return scorePanel;
 	}
 
 }
