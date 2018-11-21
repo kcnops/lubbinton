@@ -62,12 +62,12 @@ public class PlayerScreen extends JPanel {
 		playerActionPanel.add(startPanel, BorderLayout.EAST);
 		final JButton startButton = new JButton();
 		startButton.setText("Start");
-		startButton.addActionListener(e -> {
+		startButton.addActionListener(event -> {
 			final List<String> selectedPlayers = playerButtons.stream()
 					.filter(JToggleButton::isSelected)
 					.map(JToggleButton::getText)
 					.collect(Collectors.toList());
-			frame.start(selectedPlayers);
+			frame.startPressed(selectedPlayers);
 		});
 
 		startPanel.add(startButton);

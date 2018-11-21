@@ -1,6 +1,7 @@
 package kcnops.lubbinton.view;
 
 import kcnops.lubbinton.model.Match;
+import kcnops.lubbinton.model.Score;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -8,8 +9,14 @@ import java.awt.*;
 
 public class MatchPanel extends JPanel {
 
+	private Match match;
+	private JTextField homeTeamScore;
+	private JTextField outTeamScore;
+
 
 	protected MatchPanel(@Nonnull final Match match,  final boolean withScore) {
+		this.match = match;
+
 		this.setLayout(new BorderLayout());
 
 		final JPanel gamePanel = new JPanel();
@@ -36,11 +43,19 @@ public class MatchPanel extends JPanel {
 		}
 	}
 
+	public Match getMatch() {
+		return match;
+	}
+
+	public Score getScore() {
+		return new Score(Integer.parseInt(homeTeamScore.getText()), Integer.parseInt(outTeamScore.getText()));
+	}
+
 	private void addScorePanel() {
 		final JPanel scorePanel = new JPanel();
 		scorePanel.setLayout(new BorderLayout());
 
-		final JTextField homeTeamScore = new JTextField();
+		homeTeamScore = new JTextField();
 		homeTeamScore.setPreferredSize(new Dimension(20, 10));
 		scorePanel.add(homeTeamScore, BorderLayout.WEST);
 
@@ -49,11 +64,20 @@ public class MatchPanel extends JPanel {
 		dashPanel.setText("-");
 		dashPanel.setEditable(false);
 
-		final JTextField outTeamScore = new JTextField();
+		outTeamScore = new JTextField();
 		scorePanel.add(outTeamScore, BorderLayout.EAST);
 		outTeamScore.setPreferredSize(new Dimension(20, 10));
 
 		this.add(scorePanel, BorderLayout.EAST);
 	}
 
+	protected boolean validateForNext() {
+		try {
+			Integer.parseInt(homeTeamScore.getText());
+			Integer.parseInt(outTeamScore.getText());
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
 }

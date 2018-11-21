@@ -1,12 +1,15 @@
 package kcnops.lubbinton.view;
 
 import kcnops.lubbinton.controller.MainController;
+import kcnops.lubbinton.model.Match;
 import kcnops.lubbinton.model.Round;
+import kcnops.lubbinton.model.Score;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
 public class LubbintonScreen extends JFrame {
 
@@ -33,19 +36,31 @@ public class LubbintonScreen extends JFrame {
 		playerPanel = new PlayerScreen(this, playerNames);
 		tabbedPanel.addTab("Players", playerPanel);
 
-		roundPanel = new RoundsScreen();
+		roundPanel = new RoundsScreen(this);
 		tabbedPanel.addTab("Rounds", roundPanel);
 	}
 
-	protected void start(@Nonnull final List<String> selectedPlayers) {
+	protected void startPressed(@Nonnull final List<String> selectedPlayers) {
+		System.out.println("Start pressed.");
 		mainController.start(selectedPlayers);
+	}
+
+	protected void nextPressed(Map<Match, Score> scores) {
+		System.out.println("Next pressed.");
+		mainController.nextRound(scores);
 	}
 
 	public void thisRound(@Nonnull final Round round) {
 		roundPanel.thisRound(round);
+		this.pack();
 	}
 
 	public void nextRound(@Nonnull final Round round) {
 		roundPanel.nextRound(round);
+		this.pack();
+	}
+
+	public void emptyNextRound() {
+		roundPanel.emptyNextRound();
 	}
 }
