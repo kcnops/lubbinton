@@ -5,6 +5,7 @@ import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;
 import kcnops.lubbinton.model.Score;
 import kcnops.lubbinton.model.Setup;
+import kcnops.lubbinton.model.Side;
 import kcnops.lubbinton.service.distributor.DistributorService2;
 import kcnops.lubbinton.service.distributor.IDistributorService;
 import kcnops.lubbinton.view.LubbintonScreen;
@@ -55,7 +56,23 @@ public class MainController {
 	}
 
 	private void addScores(final Map<Match, Score> scores) {
-		// TODO
+		for (final Match match : scores.keySet()) {
+			final Score score = scores.get(match);
+			final Side sideOne = match.getSideOne();
+			final int scoreOne = score.getScoreOne();
+			addScore(sideOne.getOne(), scoreOne);
+			addScore(sideOne.getTwo(), scoreOne);
+			final Side sideTwo = match.getSideTwo();
+			final int scoreTwo = score.getScoreTwo();
+			addScore(sideTwo.getOne(), scoreTwo);
+			addScore(sideTwo.getTwo(), scoreTwo);
+		}
+	}
+
+	private void addScore(@Nonnull final Player player, final int score) {
+		final int oldScore = players.get(player);
+		final int newScore = oldScore + score;
+		players.put(player, newScore);
 	}
 
 	private void newNextRound() {

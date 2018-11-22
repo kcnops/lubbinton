@@ -14,6 +14,16 @@ public class Side {
 		this.two = two;
 	}
 
+	@Nonnull
+	public Player getOne() {
+		return one;
+	}
+
+	@Nonnull
+	public Player getTwo() {
+		return two;
+	}
+
 	public boolean doesPlayWith(@Nonnull final Player playerOne, @Nonnull final Player playerTwo) {
 		return containsPlayer(playerOne) && containsPlayer(playerTwo);
 	}
