@@ -42,6 +42,7 @@ public class RoundPanel extends JPanel {
 
 	protected void setGames(@Nonnull final Round round) {
 		bodyPanel.removeAll();
+		matchPanels = new ArrayList<>();
 
 		final JPanel matchesPanel = new JPanel();
 		matchesPanel.setLayout(new BoxLayout(matchesPanel, BoxLayout.PAGE_AXIS));
