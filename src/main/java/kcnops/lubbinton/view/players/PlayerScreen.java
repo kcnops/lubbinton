@@ -1,4 +1,6 @@
-package kcnops.lubbinton.view;
+package kcnops.lubbinton.view.players;
+
+import kcnops.lubbinton.view.LubbintonScreen;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;

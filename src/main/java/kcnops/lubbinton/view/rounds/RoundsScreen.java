@@ -1,13 +1,15 @@
-package kcnops.lubbinton.view;
+package kcnops.lubbinton.view.rounds;
 
 import kcnops.lubbinton.model.Match;
 import kcnops.lubbinton.model.Round;
 import kcnops.lubbinton.model.Score;
+import kcnops.lubbinton.view.LubbintonScreen;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+import java.util.Optional;
 
 public class RoundsScreen extends JPanel {
 
@@ -17,6 +19,7 @@ public class RoundsScreen extends JPanel {
 	private final RoundPanel nextRoundPanel;
 
 	private final JButton nextRoundButton;
+	private final JButton finishButton;
 
 
 	public RoundsScreen(@Nonnull final LubbintonScreen frame) {
@@ -33,8 +36,9 @@ public class RoundsScreen extends JPanel {
 		nextRoundButton.addActionListener(event -> nextPressed());
 		actionPanel.add(nextRoundButton);
 
-		final JButton finishButton = new JButton();
+		finishButton = new JButton();
 		finishButton.setText("Finish");
+		finishButton.addActionListener(event -> finishPressed());
 		actionPanel.add(finishButton);
 
 
@@ -55,21 +59,33 @@ public class RoundsScreen extends JPanel {
 			nextRoundButton.setEnabled(true);
 			return;
 		}
-		Map<Match, Score> scores = thisRoundPanel.getScores();
+		final Map<Match, Score> scores = thisRoundPanel.getScores();
 		frame.nextPressed(scores);
 	}
 
-	protected void thisRound(@Nonnull final Round round) {
+	private void finishPressed() {
+		finishButton.setEnabled(false);
+		if (!thisRoundPanel.validateForNext()) {
+			finishButton.setEnabled(true);
+			frame.finishPressed(Optional.empty());
+		} else {
+			finishButton.setEnabled(true);
+			final Map<Match, Score> scores = thisRoundPanel.getScores();
+			frame.finishPressed(Optional.of(scores));
+		}
+	}
+
+	public void thisRound(@Nonnull final Round round) {
 		thisRoundPanel.setGames(round);
 	}
 
 
-	protected void nextRound(@Nonnull final Round round) {
+	public void nextRound(@Nonnull final Round round) {
 		nextRoundPanel.setGames(round);
 		nextRoundButton.setEnabled(true);
 	}
 
-	protected void emptyNextRound() {
+	public void emptyNextRound() {
 		nextRoundPanel.emptyBody();
 	}
 }

@@ -1,4 +1,4 @@
-package kcnops.lubbinton.view;
+package kcnops.lubbinton.view.rounds;
 
 import kcnops.lubbinton.model.Match;
 import kcnops.lubbinton.model.Player;

@@ -2,14 +2,19 @@ package kcnops.lubbinton.view;
 
 import kcnops.lubbinton.controller.MainController;
 import kcnops.lubbinton.model.Match;
+import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;
 import kcnops.lubbinton.model.Score;
+import kcnops.lubbinton.view.players.PlayerScreen;
+import kcnops.lubbinton.view.rounds.RoundsScreen;
+import kcnops.lubbinton.view.scores.ScoresScreen;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class LubbintonScreen extends JFrame {
 
@@ -17,6 +22,7 @@ public class LubbintonScreen extends JFrame {
 
 	private PlayerScreen playerPanel;
 	private RoundsScreen roundPanel;
+	private ScoresScreen scorePanel;
 
 	public LubbintonScreen(@Nonnull final MainController mainController, @Nonnull final List<String> playerNames) {
 		this.mainController = mainController;
@@ -38,16 +44,24 @@ public class LubbintonScreen extends JFrame {
 
 		roundPanel = new RoundsScreen(this);
 		tabbedPanel.addTab("Rounds", roundPanel);
+
+		scorePanel = new ScoresScreen(this);
+		tabbedPanel.addTab("Score", scorePanel);
 	}
 
-	protected void startPressed(@Nonnull final List<String> selectedPlayers) {
+	public void startPressed(@Nonnull final List<String> selectedPlayers) {
 		System.out.println("Start pressed.");
 		mainController.start(selectedPlayers);
 	}
 
-	protected void nextPressed(Map<Match, Score> scores) {
+	public void nextPressed(Map<Match, Score> scores) {
 		System.out.println("Next pressed.");
 		mainController.nextRound(scores);
+	}
+
+	public void finishPressed(Optional<Map<Match, Score>> optionalScores) {
+		System.out.println("Finish pressed.");
+		mainController.finish(optionalScores);
 	}
 
 	public void thisRound(@Nonnull final Round round) {
@@ -62,5 +76,9 @@ public class LubbintonScreen extends JFrame {
 
 	public void emptyNextRound() {
 		roundPanel.emptyNextRound();
+	}
+
+	public void setScores(@Nonnull final Map<Player, Integer> players) {
+		scorePanel.setScores(players);
 	}
 }
