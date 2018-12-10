@@ -54,12 +54,12 @@ public class LubbintonScreen extends JFrame {
 		mainController.start(selectedPlayers);
 	}
 
-	public void nextPressed(Map<Match, Score> scores) {
+	public void nextPressed(@Nonnull final Map<Match, Score> scores) {
 		System.out.println("Next pressed.");
 		mainController.nextRound(scores);
 	}
 
-	public void finishPressed(Optional<Map<Match, Score>> optionalScores) {
+	public void finishPressed(@Nonnull final Optional<Map<Match, Score>> optionalScores) {
 		System.out.println("Finish pressed.");
 		mainController.finish(optionalScores);
 	}

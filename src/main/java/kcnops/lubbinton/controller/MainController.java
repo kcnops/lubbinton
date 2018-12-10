@@ -46,7 +46,7 @@ public class MainController {
 		new Thread(this::newNextRound).start();
 	}
 
-	public void nextRound(final Map<Match, Score> scores) {
+	public void nextRound(@Nonnull final Map<Match, Score> scores) {
 		addScores(scores);
 
 		mainScreen.thisRound(nextRound);
@@ -56,7 +56,7 @@ public class MainController {
 		new Thread(this::newNextRound).start();
 	}
 
-	public void finish(final Optional<Map<Match, Score>> optionalScores) {
+	public void finish(@Nonnull final Optional<Map<Match, Score>> optionalScores) {
 		if(optionalScores.isPresent()) {
 			final Map<Match, Score> scores = optionalScores.get();
 			addScores(scores);
@@ -65,7 +65,7 @@ public class MainController {
 		mainScreen.setScores(players);
 	}
 
-	private void addScores(final Map<Match, Score> scores) {
+	private void addScores(@Nonnull final Map<Match, Score> scores) {
 		for (final Match match : scores.keySet()) {
 			final Score score = scores.get(match);
 			final Side sideOne = match.getSideOne();
