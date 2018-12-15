@@ -28,11 +28,13 @@ public class MainController {
 	private final IDistributorService distributorService;
 
 	private Map<Player, Integer> players;
+	private List<Round> rounds;
 	private Round nextRound;
 
 	public MainController() {
 		mainScreen = new LubbintonScreen(this, NAMES);
 		distributorService = new DistributorService2();
+		this.rounds = new ArrayList<>();
 	}
 
 	public void start(@Nonnull final List<String> playerNames) {
@@ -102,7 +104,9 @@ public class MainController {
 	private Round getRound() {
 		final Set<Setup> rounds = distributorService.distribute(new ArrayList<>(players.keySet()), 1);
 		final Setup randomSetup = rounds.iterator().next();
-		return randomSetup.getRounds().get(0);
+		final Round round = randomSetup.getRounds().get(0);
+		this.rounds.add(round);
+		return round;
 	}
 
 }
