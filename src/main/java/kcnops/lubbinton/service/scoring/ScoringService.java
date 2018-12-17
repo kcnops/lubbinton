@@ -1,4 +1,4 @@
-package kcnops.lubbinton.service.distributor;
+package kcnops.lubbinton.service.scoring;
 
 import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;

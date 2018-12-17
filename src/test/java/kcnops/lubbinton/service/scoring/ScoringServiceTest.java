@@ -1,11 +1,11 @@
-package kcnops.lubbinton.service.distributor.service;
+package kcnops.lubbinton.service.scoring;
 
 import kcnops.lubbinton.model.Match;
 import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;
 import kcnops.lubbinton.model.Setup;
 import kcnops.lubbinton.model.Side;
-import kcnops.lubbinton.service.distributor.ScoringService;
+import kcnops.lubbinton.service.scoring.ScoringService;
 import org.junit.Test;
 
 import java.util.Arrays;

@@ -2,6 +2,7 @@ package kcnops.lubbinton.service.distributor;
 
 import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Setup;
+import kcnops.lubbinton.service.scoring.ScoringService;
 
 import java.util.Arrays;
 import java.util.List;
