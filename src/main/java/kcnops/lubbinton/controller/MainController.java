@@ -42,6 +42,7 @@ public class MainController {
 		rounds = new ArrayList<>();
 
 		final Round round = getRound();
+		rounds.add(round);
 		mainScreen.thisRound(round);
 
 		new Thread(this::newNextRound).start();
@@ -50,18 +51,17 @@ public class MainController {
 	public void nextRound(@Nonnull final Map<Match, Score> scores) {
 		addScores(scores);
 
+		rounds.add(nextRound);
 		mainScreen.thisRound(nextRound);
 
+		nextRound = null;
 		mainScreen.emptyNextRound();
 
 		new Thread(this::newNextRound).start();
 	}
 
 	public void finish(@Nonnull final Optional<Map<Match, Score>> optionalScores) {
-		if(optionalScores.isPresent()) {
-			final Map<Match, Score> scores = optionalScores.get();
-			addScores(scores);
-		}
+		optionalScores.ifPresent(this::addScores);
 
 		mainScreen.setScores(players);
 	}
@@ -96,7 +96,7 @@ public class MainController {
 	@Nonnull
 	private Round getRound() {
 		final Round newRound = distributor.getNextRound(new ArrayList<>(players.keySet()), rounds);
-		rounds.add(newRound);
+		System.out.println(newRound);
 		return newRound;
 	}
 
