@@ -29,13 +29,14 @@ public class RoundPanel extends JPanel {
 		header.setEditable(false);
 		this.add(header, BorderLayout.NORTH);
 
-		emptyBody();
-	}
-
-	protected void emptyBody() {
 		bodyPanel = new JPanel();
 		bodyPanel.setLayout(new BorderLayout());
 		this.add(bodyPanel, BorderLayout.CENTER);
+		bodyPanel.add(new JTextField("Loading..."));
+	}
+
+	protected void emptyBody() {
+		bodyPanel.removeAll();
 
 		bodyPanel.add(new JTextField("Loading..."));
 	}
