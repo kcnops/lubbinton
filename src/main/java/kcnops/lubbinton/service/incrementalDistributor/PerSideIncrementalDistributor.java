@@ -7,7 +7,6 @@ import kcnops.lubbinton.model.Setup;
 import kcnops.lubbinton.model.Side;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,13 +22,13 @@ import java.util.stream.Stream;
  * This incremental distributor will not find out the rest players by permutation but by counting who should rest.
  * The players playing will still be permuted, however per side and not per player, thus more intelligent and less time consuming.
  */
-public class SmarterIncrementalDistributor implements IIncrementalDistributor {
+public class PerSideIncrementalDistributor implements IIncrementalDistributor {
 
 	private static final String[] NAMES = new String[]{"Kristof","Thomas","Lucas", "Smets"};
 
 	public static void main(String... args) {
 		final List<Player> players = Arrays.stream(NAMES).map(Player::new).collect(Collectors.toList());
-		SmarterIncrementalDistributor distributor = new SmarterIncrementalDistributor();
+		PerSideIncrementalDistributor distributor = new PerSideIncrementalDistributor();
 		distributor.getNextRound(players, Collections.emptyList());
 	}
 
@@ -41,9 +40,13 @@ public class SmarterIncrementalDistributor implements IIncrementalDistributor {
 		final List<Player> playingPlayers = new ArrayList<>(players);
 		playingPlayers.removeAll(restPlayers);
 		final int amountOfGames = playingPlayers.size() / 4;
-		final List<Side> uniqueSides = getUniqueSides(playingPlayers);
+		final Set<Side> uniqueSides = getUniqueSides(playingPlayers);
+		System.out.println("unique sides: " + uniqueSides);
+		System.out.println("amount unique sides: " + uniqueSides.size());
 		final Set<List<Side>> setups = getRounds(uniqueSides, amountOfGames);
+		System.out.println("amount sideLists: " + setups.size());
 		final Set<Round> rounds = buildRounds(setups, restPlayers);
+		System.out.println("amount rounds: " + rounds.size());
 		final Setup bestSetup = getBestSetup(players, previousRounds, rounds);
 		return bestSetup.getRounds().get(bestSetup.getRounds().size()-1);
 	}
@@ -65,7 +68,7 @@ public class SmarterIncrementalDistributor implements IIncrementalDistributor {
 		}).collect(Collectors.toSet());
 	}
 
-	private Set<List<Side>> getRounds(@Nonnull final List<Side> uniqueSides, final int amountOfGames) {
+	private Set<List<Side>> getRounds(@Nonnull final Set<Side> uniqueSides, final int amountOfGames) {
 		if(amountOfGames < 1) {
 			return Collections.emptySet();
 		}
@@ -73,7 +76,7 @@ public class SmarterIncrementalDistributor implements IIncrementalDistributor {
 	}
 
 
-	private Set<List<Side>> getRoundsIterative(@Nonnull final List<Side> uniqueSides, final int amountOfSidesRemaining) {
+	private Set<List<Side>> getRoundsIterative(@Nonnull final Set<Side> uniqueSides, final int amountOfSidesRemaining) {
 		if (amountOfSidesRemaining == 1) {
 			final Set<List<Side>> result = new HashSet<>();
 			uniqueSides.forEach(side -> {
@@ -85,49 +88,36 @@ public class SmarterIncrementalDistributor implements IIncrementalDistributor {
 		}
 		final Set<List<Side>> setups = getRoundsIterative(uniqueSides, amountOfSidesRemaining - 1);
 		final Set<List<Side>> newSetups = new HashSet<>();
-		uniqueSides.forEach(side -> {
+		uniqueSides.forEach(side ->
 			setups.forEach(setup -> {
 				if(isNewSide(side, setup)) {
 					final List<Side> newSetup = new ArrayList<>(setup);
 					newSetup.add(side);
 					newSetups.add(newSetup);
 				}
-			});
-		});
+			}));
 		return newSetups;
 	}
 
 	private boolean isNewSide(@Nonnull final Side side, @Nonnull final List<Side> sides) {
-		return !isPlayerInSides(side.getOne(), sides) && !isPlayerInSides(side.getTwo(), sides);
+		return isNewPlayerForSides(side.getOne(), sides) && isNewPlayerForSides(side.getTwo(), sides);
 	}
 
-	private boolean isPlayerInSides(@Nonnull final Player player, @Nonnull final List<Side> sides) {
-		return sides.stream().anyMatch(side -> side.containsPlayer(player));
+	private boolean isNewPlayerForSides(@Nonnull final Player player, @Nonnull final List<Side> sides) {
+		return sides.stream().noneMatch(side -> side.containsPlayer(player));
 	}
 
-
-	private List<Side> getUniqueSides(@Nonnull final List<Player> players) {
-		return getUniqueSides(players, null);
-	}
-
-	private List<Side> getUniqueSides(@Nonnull final List<Player> players, @Nullable final Player first) {
-		if (players.isEmpty()) {
-			return new ArrayList<>();
+	private Set<Side> getUniqueSides(@Nonnull final List<Player> players) {
+		final Set<Side> uniqueSides = new HashSet<>();
+		if (players.size() < 2) {
+			return uniqueSides;
 		}
-		final List<Player> rest = new ArrayList<>(players);
-		final Player head = rest.remove(0);
-		if (first != null) {
-			final List<Side> sides = getUniqueSides(new ArrayList<>(rest), first);
-			sides.add(new Side(first, head));
-			return sides;
+		for (int first = 0; first < players.size()-1; first++) {
+			for (int second = first+1; second < players.size(); second++) {
+				uniqueSides.add(new Side(players.get(first), players.get(second)));
+			}
 		}
-		else {
-			final List<Side> sidesWithHead = getUniqueSides(new ArrayList<>(rest), head);
-			final List<Side> sidesWithoutHead = getUniqueSides(new ArrayList<>(rest), null);
-			final List<Side> result = new ArrayList<>(sidesWithHead);
-			result.addAll(sidesWithoutHead);
-			return result;
-		}
+		return uniqueSides;
 	}
 
 	// Rest player methods

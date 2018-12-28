@@ -1,6 +1,9 @@
 package kcnops.lubbinton.model;
 
 import javax.annotation.Nonnull;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Side {
 
@@ -22,6 +25,11 @@ public class Side {
 	@Nonnull
 	public Player getTwo() {
 		return two;
+	}
+
+	@Nonnull
+	public Set<Player> getPlayers() {
+		return Stream.of(one, two).collect(Collectors.toSet());
 	}
 
 	public boolean doesPlayWith(@Nonnull final Player playerOne, @Nonnull final Player playerTwo) {

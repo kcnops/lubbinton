@@ -1,6 +1,10 @@
 package kcnops.lubbinton.model;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Match {
 
@@ -22,6 +26,11 @@ public class Match {
 	@Nonnull
 	public Side getSideTwo() {
 		return sideTwo;
+	}
+
+	@Nonnull
+	public Set<Player> getPlayers() {
+		return Stream.of(sideOne.getPlayers(), sideTwo.getPlayers()).flatMap(Collection::stream).collect(Collectors.toSet());
 	}
 
 	public boolean doesPlayWith(@Nonnull final Player playerOne, @Nonnull final Player playerTwo) {
