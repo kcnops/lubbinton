@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,13 +23,13 @@ import java.util.stream.Collectors;
  * but builds, transforms, calculates and if not better start next one.
  * This way it does not need to save all possibilities.
  */
-public class PerMatchImmediateReturnNotSavingIncrementalDistributor implements IIncrementalDistributor {
+public class AllMatchImmediateReturnNotSavingIncrementalDistributor implements IIncrementalDistributor {
 
-	private static final String[] NAMES = new String[]{"Kristof","Thomas","Lucas", "Smets"};
+	private static final String[] NAMES = new String[]{"1","2","3", "4"};
 
 	public static void main(String... args) {
 		final List<Player> players = Arrays.stream(NAMES).map(Player::new).collect(Collectors.toList());
-		PerMatchImmediateReturnNotSavingIncrementalDistributor distributor = new PerMatchImmediateReturnNotSavingIncrementalDistributor();
+		AllMatchImmediateReturnNotSavingIncrementalDistributor distributor = new AllMatchImmediateReturnNotSavingIncrementalDistributor();
 		distributor.getNextRound(players, Collections.emptyList());
 	}
 
@@ -45,37 +43,55 @@ public class PerMatchImmediateReturnNotSavingIncrementalDistributor implements I
 		final List<Player> restPlayers = getRestPlayers(players, previousRounds);
 		final List<Player> playingPlayers = new ArrayList<>(players);
 		playingPlayers.removeAll(restPlayers);
-		final Set<Match> uniqueMatches = getUniqueMatches(playingPlayers);
-		System.out.println("amount unique matches: " + uniqueMatches.size());
-		System.out.println("unique matches: " + uniqueMatches);
-		final Setup bestSetup = permuteTransformScoreAndReturnBestSetup(players, playingPlayers, restPlayers, uniqueMatches, previousRounds);
+		final Setup bestSetup = permuteTransformScoreAndReturnBestSetup(players, playingPlayers, restPlayers, previousRounds);
 		return bestSetup.getRounds().get(bestSetup.getRounds().size()-1);
 	}
 
 	@Nonnull
-	private Setup permuteTransformScoreAndReturnBestSetup(@Nonnull final List<Player> allPlayers, @Nonnull final List<Player> playingPlayers, @Nonnull final List<Player> restPlayers, @Nonnull final Set<Match> uniqueMatches, @Nonnull final List<Round> previousRounds) {
+	private Setup permuteTransformScoreAndReturnBestSetup(@Nonnull final List<Player> allPlayers, @Nonnull final List<Player> playingPlayers, @Nonnull final List<Player> restPlayers, @Nonnull final List<Round> previousRounds) {
 		bestScore = Integer.MAX_VALUE;
 		bestSetup = null;
-		permuteTransformScoreAndReturnBestSetup(allPlayers, playingPlayers, restPlayers, uniqueMatches, previousRounds, new ArrayList<>());
+		permuteTransformScoreAndReturnBestSetup(allPlayers, restPlayers, previousRounds, new ArrayList<>(), playingPlayers);
 		return bestSetup;
 	}
 
-	private void permuteTransformScoreAndReturnBestSetup(@Nonnull final List<Player> allPlayers, @Nonnull final List<Player> playingPlayers, @Nonnull final List<Player> restPlayers, @Nonnull final Set<Match> uniqueMatches, @Nonnull final List<Round> previousRounds, @Nonnull final List<Match> matchList) {
-		final int amountOfGames = playingPlayers.size() / 4;
-		if (matchList.size() == amountOfGames) {
+	private void permuteTransformScoreAndReturnBestSetup(@Nonnull final List<Player> allPlayers, @Nonnull final List<Player> restPlayers, @Nonnull final List<Round> previousRounds, @Nonnull final List<Match> matchList, @Nonnull final List<Player> remainingPlayers) {
+		if (remainingPlayers.isEmpty()) {
 			final Round round = new Round(matchList, restPlayers);
 			final Setup setup = buildSetup(previousRounds, round);
 			handleNewSetup(setup, allPlayers);
 			return;
 		}
-		final List<Match> uniqueMatchesCopy = new ArrayList<>(uniqueMatches);
-		for (final Match match : uniqueMatchesCopy) {
-			if (isNewMatch(match, matchList)) {
-				final List<Match> newMatchList = new ArrayList<>(matchList);
-				newMatchList.add(match);
-				permuteTransformScoreAndReturnBestSetup(allPlayers, playingPlayers, restPlayers, uniqueMatches, previousRounds, newMatchList);
+		for (int first = 0; first < remainingPlayers.size()-1; first++) {
+			for (int second = first+1; second < remainingPlayers.size(); second++) {
+				final Player playerOne = remainingPlayers.get(first);
+				final Player playerTwo = remainingPlayers.get(second);
+				final Side sideOne = new Side(playerOne, playerTwo);
+
+				final List<Player> remainingPlayersCopy = new ArrayList<>(remainingPlayers);
+				remainingPlayersCopy.remove(playerOne);
+				remainingPlayersCopy.remove(playerTwo);
+
+				for (int third = 0; third < remainingPlayersCopy.size()-1; third++) {
+					for (int forth = third + 1; forth < remainingPlayersCopy.size(); forth++) {
+						final Player playerThree = remainingPlayersCopy.get(third);
+						final Player playerFour = remainingPlayersCopy.get(forth);
+						final Side sideTwo = new Side(playerThree, playerFour);
+						final Match match = new Match(sideOne, sideTwo);
+						final List<Match> newMatchList = new ArrayList<>(matchList);
+						newMatchList.add(match);
+
+						final List<Player> remainingPlayersCopyCopy = new ArrayList<>(remainingPlayersCopy);
+						remainingPlayersCopyCopy.remove(playerThree);
+						remainingPlayersCopyCopy.remove(playerFour);
+
+						permuteTransformScoreAndReturnBestSetup(allPlayers, restPlayers, previousRounds, newMatchList, remainingPlayersCopyCopy);
+					}
+				}
+
 			}
 		}
+
 	}
 
 	private void handleNewSetup(@Nonnull final Setup setup, @Nonnull final List<Player> allPlayers) {
@@ -91,43 +107,6 @@ public class PerMatchImmediateReturnNotSavingIncrementalDistributor implements I
 		final List<Round> allRounds = new ArrayList<>(previousRounds);
 		allRounds.add(round);
 		return new Setup(allRounds);
-	}
-
-
-	private boolean isNewMatch(@Nonnull final Match match, @Nonnull final List<Match> matchList) {
-		return match.getPlayers().stream().allMatch(player -> this.isNewPlayerForMatches(player, matchList));
-	}
-
-	private boolean isNewPlayerForMatches(@Nonnull final Player player, @Nonnull final List<Match> matches) {
-		return matches.stream().noneMatch(match -> match.contains(player));
-	}
-
-	private Set<Match> getUniqueMatches(@Nonnull final List<Player> players) {
-		final Set<Match> uniqueMatches = new HashSet<>();
-		if (players.size() < 4) {
-			return uniqueMatches;
-		}
-		for (int first = 0; first < players.size()-1; first++) {
-			for (int second = first+1; second < players.size(); second++) {
-				final Player playerOne = players.get(first);
-				final Player playerTwo = players.get(second);
-				final Side sideOne = new Side(playerOne, playerTwo);
-
-				final List<Player> remainingPlayers = new ArrayList<>(players);
-				remainingPlayers.remove(playerOne);
-				remainingPlayers.remove(playerTwo);
-
-				for (int third = 0; third < remainingPlayers.size()-1; third++) {
-					for (int forth = third + 1; forth < remainingPlayers.size(); forth++) {
-						final Side sideTwo = new Side(remainingPlayers.get(third), remainingPlayers.get(forth));
-
-						uniqueMatches.add(new Match(sideOne, sideTwo));
-					}
-				}
-
-			}
-		}
-		return uniqueMatches;
 	}
 
 	// Rest player methods

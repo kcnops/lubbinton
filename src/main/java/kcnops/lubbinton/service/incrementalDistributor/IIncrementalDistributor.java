@@ -3,6 +3,7 @@ package kcnops.lubbinton.service.incrementalDistributor;
 import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;
 import kcnops.lubbinton.model.Setup;
+import kcnops.lubbinton.service.scoring.FasterScoringService;
 import kcnops.lubbinton.service.scoring.ScoringService;
 
 import javax.annotation.Nonnull;
@@ -14,7 +15,7 @@ import java.util.Set;
 @FunctionalInterface
 public interface IIncrementalDistributor {
 
-	ScoringService SCORING_SERVICE = new ScoringService();
+	ScoringService SCORING_SERVICE = new FasterScoringService();
 
 	@Nonnull
 	Round getNextRound(@Nonnull final List<Player> players, @Nonnull final List<Round> previousRounds);

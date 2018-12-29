@@ -8,30 +8,24 @@ import kcnops.lubbinton.model.Side;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This incremental distributor will not find out the rest players by permutation but by counting who should rest.
  * The players playing will still be permuted, however per side and not per player, thus more intelligent and less time consuming.
+ *
+ * Does not build all possibilities, to then transform them to a complete setup to then calculate all scores and get the best one,
+ * but builds, transforms, calculates and if not better start next one.
+ * This way it does not need to save all possibilities.
  */
-public class PerSideIncrementalDistributor implements IIncrementalDistributor {
+public class PerPlayerImmediateReturnNotSavingIncrementalDistributor implements IIncrementalDistributor {
 
-	private static final String[] NAMES = new String[]{"Kristof","Thomas","Lucas", "Smets"};
-
-	public static void main(String... args) {
-		final List<Player> players = Arrays.stream(NAMES).map(Player::new).collect(Collectors.toList());
-		PerSideIncrementalDistributor distributor = new PerSideIncrementalDistributor();
-		distributor.getNextRound(players, Collections.emptyList());
-	}
-
+	private Integer bestScore;
+	private Setup bestSetup;
 
 	@Nonnull
 	@Override
@@ -39,65 +33,62 @@ public class PerSideIncrementalDistributor implements IIncrementalDistributor {
 		final List<Player> restPlayers = getRestPlayers(players, previousRounds);
 		final List<Player> playingPlayers = new ArrayList<>(players);
 		playingPlayers.removeAll(restPlayers);
-		final int amountOfGames = playingPlayers.size() / 4;
-		final Set<Side> uniqueSides = getUniqueSides(playingPlayers);
-		System.out.println("unique sides: " + uniqueSides);
-		System.out.println("amount unique sides: " + uniqueSides.size());
-		final Set<List<Side>> setups = getRounds(uniqueSides, amountOfGames);
-		System.out.println("amount sideLists: " + setups.size());
-		final Set<Round> rounds = buildRounds(setups, restPlayers);
-		System.out.println("amount rounds: " + rounds.size());
-		final Setup bestSetup = getBestSetup(players, previousRounds, rounds);
+		final Setup bestSetup = permuteTransformScoreAndReturnBestSetup(players, playingPlayers, restPlayers, previousRounds);
 		return bestSetup.getRounds().get(bestSetup.getRounds().size()-1);
 	}
 
-	private Set<Round> buildRounds(@Nonnull final Set<List<Side>> setups, @Nonnull final List<Player> restPlayers) {
-		if (setups.isEmpty()) {
-			final Round singleResult = new Round(Collections.emptyList(), restPlayers);
-			return Stream.of(singleResult).collect(Collectors.toSet());
+	@Nonnull
+	private Setup permuteTransformScoreAndReturnBestSetup(@Nonnull final List<Player> allPlayers, @Nonnull final List<Player> playingPlayers, @Nonnull final List<Player> restPlayers, @Nonnull final List<Round> previousRounds) {
+		bestScore = Integer.MAX_VALUE;
+		bestSetup = null;
+		permuteTransformScoreAndReturnBestSetup(allPlayers, playingPlayers, restPlayers, previousRounds, new ArrayList<>());
+		return bestSetup;
+	}
+
+	private void permuteTransformScoreAndReturnBestSetup(@Nonnull final List<Player> allPlayers, @Nonnull final List<Player> playingPlayers, @Nonnull final List<Player> restPlayers, @Nonnull final List<Round> previousRounds, @Nonnull final List<Player> playerList) {
+		if (playerList.size() == playingPlayers.size()) {
+			final Round round = buildRound(playerList, restPlayers);
+			final Setup setup = buildSetup(previousRounds, round);
+			handleNewSetup(setup, allPlayers);
+			return;
 		}
-		return setups.stream().map(sideList -> {
-			final List<Match> matches = new ArrayList<>();
-			while(!sideList.isEmpty()) {
-				final Side side1 = sideList.remove(0);
-				final Side side2 = sideList.remove(0);
-				final Match match = new Match(side1, side2);
-				matches.add(match);
+		for (final Player player : playingPlayers) {
+			if (!playerList.contains(player)) {
+				final List<Player> newPlayerList = new ArrayList<>(playerList);
+				newPlayerList.add(player);
+				permuteTransformScoreAndReturnBestSetup(allPlayers, playingPlayers, restPlayers, previousRounds, newPlayerList);
 			}
-			return new Round(matches, restPlayers);
-		}).collect(Collectors.toSet());
-	}
-
-	private Set<List<Side>> getRounds(@Nonnull final Set<Side> uniqueSides, final int amountOfGames) {
-		if(amountOfGames < 1) {
-			return Collections.emptySet();
 		}
-		return getRoundsIterative(uniqueSides, amountOfGames * 2);
 	}
 
-
-	private Set<List<Side>> getRoundsIterative(@Nonnull final Set<Side> uniqueSides, final int amountOfSidesRemaining) {
-		if (amountOfSidesRemaining == 1) {
-			final Set<List<Side>> result = new HashSet<>();
-			uniqueSides.forEach(side -> {
-				final List<Side> sideList = new ArrayList<>();
-				sideList.add(side);
-				result.add(sideList);
-			});
-			return result;
+	private void handleNewSetup(@Nonnull final Setup setup, @Nonnull final List<Player> allPlayers) {
+		final int score = SCORING_SERVICE.score(setup, allPlayers);
+		if (score < bestScore) {
+			bestScore = score;
+			bestSetup = setup;
 		}
-		final Set<List<Side>> setups = getRoundsIterative(uniqueSides, amountOfSidesRemaining - 1);
-		final Set<List<Side>> newSetups = new HashSet<>();
-		uniqueSides.forEach(side ->
-			setups.forEach(setup -> {
-				if(isNewSide(side, setup)) {
-					final List<Side> newSetup = new ArrayList<>(setup);
-					newSetup.add(side);
-					newSetups.add(newSetup);
-				}
-			}));
-		return newSetups;
 	}
+
+	@Nonnull
+	private Round buildRound(@Nonnull List<Player> playingPlayers, @Nonnull final List<Player> restPlayers) {
+		final int amountOfPlayers = playingPlayers.size();
+		final int amountOfMatches = amountOfPlayers / 4;
+		final List<Match> matches = new ArrayList<>();
+		for (int i = 0; i < amountOfMatches; i++) {
+			final Side sideOne = new Side(playingPlayers.get(4 * i), playingPlayers.get(4 * i + 1));
+			final Side sideTwo = new Side(playingPlayers.get(4 * i + 2), playingPlayers.get(4 * i + 3));
+			matches.add(new Match(sideOne, sideTwo));
+		}
+		return new Round(matches, restPlayers);
+	}
+
+	@Nonnull
+	private Setup buildSetup(@Nonnull final List<Round> previousRounds, @Nonnull final Round round) {
+		final List<Round> allRounds = new ArrayList<>(previousRounds);
+		allRounds.add(round);
+		return new Setup(allRounds);
+	}
+
 
 	private boolean isNewSide(@Nonnull final Side side, @Nonnull final List<Side> sides) {
 		return isNewPlayerForSides(side.getOne(), sides) && isNewPlayerForSides(side.getTwo(), sides);

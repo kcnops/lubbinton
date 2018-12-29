@@ -56,15 +56,15 @@ public class SideTest {
 
 	@Test
 	public void testContainsPlayer() {
-		assertThat(sideOne.containsPlayer(kristof)).isTrue();
-		assertThat(sideOne.containsPlayer(thomas)).isTrue();
-		assertThat(sideOne.containsPlayer(lucas)).isFalse();
-		assertThat(sideOneSwitched.containsPlayer(kristof)).isTrue();
-		assertThat(sideOneSwitched.containsPlayer(thomas)).isTrue();
-		assertThat(sideOneSwitched.containsPlayer(lucas)).isFalse();
-		assertThat(sideTwo.containsPlayer(kristof)).isTrue();
-		assertThat(sideTwo.containsPlayer(lucas)).isTrue();
-		assertThat(sideTwo.containsPlayer(thomas)).isFalse();
+		assertThat(sideOne.contains(kristof)).isTrue();
+		assertThat(sideOne.contains(thomas)).isTrue();
+		assertThat(sideOne.contains(lucas)).isFalse();
+		assertThat(sideOneSwitched.contains(kristof)).isTrue();
+		assertThat(sideOneSwitched.contains(thomas)).isTrue();
+		assertThat(sideOneSwitched.contains(lucas)).isFalse();
+		assertThat(sideTwo.contains(kristof)).isTrue();
+		assertThat(sideTwo.contains(lucas)).isTrue();
+		assertThat(sideTwo.contains(thomas)).isFalse();
 	}
 
 }

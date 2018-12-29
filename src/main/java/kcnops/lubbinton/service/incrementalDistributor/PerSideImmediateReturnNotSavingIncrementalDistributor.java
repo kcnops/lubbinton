@@ -111,7 +111,7 @@ public class PerSideImmediateReturnNotSavingIncrementalDistributor implements II
 	}
 
 	private boolean isNewPlayerForSides(@Nonnull final Player player, @Nonnull final List<Side> sides) {
-		return sides.stream().noneMatch(side -> side.containsPlayer(player));
+		return sides.stream().noneMatch(side -> side.contains(player));
 	}
 
 	private Set<Side> getUniqueSides(@Nonnull final List<Player> players) {

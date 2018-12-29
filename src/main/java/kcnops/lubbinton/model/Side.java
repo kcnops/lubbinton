@@ -33,10 +33,10 @@ public class Side {
 	}
 
 	public boolean doesPlayWith(@Nonnull final Player playerOne, @Nonnull final Player playerTwo) {
-		return containsPlayer(playerOne) && containsPlayer(playerTwo);
+		return contains(playerOne) && contains(playerTwo);
 	}
 
-	public boolean containsPlayer(@Nonnull final Player player) {
+	public boolean contains(@Nonnull final Player player) {
 		return one.equals(player) || two.equals(player);
 	}
 

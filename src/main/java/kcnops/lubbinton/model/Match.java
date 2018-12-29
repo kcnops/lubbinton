@@ -38,8 +38,12 @@ public class Match {
 	}
 
 	public boolean doesPlayAgainst(@Nonnull final Player playerOne, @Nonnull final Player playerTwo) {
-		return (sideOne.containsPlayer(playerOne) && sideTwo.containsPlayer(playerTwo))
-				|| (sideOne.containsPlayer(playerTwo) && sideTwo.containsPlayer(playerOne));
+		return (sideOne.contains(playerOne) && sideTwo.contains(playerTwo))
+				|| (sideOne.contains(playerTwo) && sideTwo.contains(playerOne));
+	}
+
+	public boolean contains(@Nonnull final Player player) {
+		return sideOne.contains(player) || sideTwo.contains(player);
 	}
 
 	@Override
