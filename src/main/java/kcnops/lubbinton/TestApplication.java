@@ -2,8 +2,8 @@ package kcnops.lubbinton;
 
 import kcnops.lubbinton.model.Player;
 import kcnops.lubbinton.model.Round;
-import kcnops.lubbinton.service.incrementalDistributor.AllMatchImmediateReturnNotSavingIncrementalDistributor;
 import kcnops.lubbinton.service.incrementalDistributor.IIncrementalDistributor;
+import kcnops.lubbinton.service.incrementalDistributor.PerMatchImmediateReturnNotSavingIncrementalDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class TestApplication {
 //	private static final String[] NAMES = new String[]{"Kristof","Thomas","Lucas", "Smets", "Geert", "Bart", "Arno", "Yannick", "Thierry", "Shauny", "Julie", "Esther"};
 	private static final int AMOUNT_OF_ROUNDS = 5;
 
-	private static final IIncrementalDistributor DISTRIBUTOR = new AllMatchImmediateReturnNotSavingIncrementalDistributor();
+	private static final IIncrementalDistributor DISTRIBUTOR = new PerMatchImmediateReturnNotSavingIncrementalDistributor();
 
 	public static void main(String[] args) throws InterruptedException {
 		final List<Player> players = new ArrayList<>();
